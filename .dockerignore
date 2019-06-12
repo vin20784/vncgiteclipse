@@ -1,0 +1,10 @@
+node_modules
+.gitignore
+
+Dockerfile
+.dockerignore
+
+Jenkinsfile
+
+README.md
+LICENCE
