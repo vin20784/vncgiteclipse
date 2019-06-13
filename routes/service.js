@@ -28,8 +28,9 @@ const getIRData = async function (iURL, iArgs) {
 /* GET home page. */
 router.post('/dsx', function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  let args = req.body.options;
+  let args = req.body;
   let URL = req.body.url;
+  delete args['url'];
   if(URL == "" || URL == undefined){
     res.json({"message": "Wrong URL"});
   }else{
