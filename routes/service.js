@@ -17,7 +17,7 @@ function getTaskOption(authentication, iURL, args) {
     .build();
 }
 
-const getIRData = async function (iURL, iArgs) {
+const getData = async function (iURL, iArgs) {
   let authData = await authManager.getAuthenticationData();
   var options = getTaskOption(authData, iURL, iArgs);
   let irData = await reqManager.getRequest(options);
@@ -25,8 +25,16 @@ const getIRData = async function (iURL, iArgs) {
   return irData.body;
 }
 
+const postData = async function(iURL, iArgs){
+  let authData = await authManager.getAuthenticationData();
+  var options = getTaskOption(authData, iURL, iArgs);
+  let irData = await reqManager.postRequest(options);
+
+  return irData.body;
+}
+
 /* GET home page. */
-router.post('/dsx', function (req, res, next) {
+router.post('/dsx/get', function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   let args = req.body;
   let URL = req.body.url;
@@ -34,7 +42,23 @@ router.post('/dsx', function (req, res, next) {
   if(URL == "" || URL == undefined){
     res.json({"message": "Wrong URL"});
   }else{
-    getIRData(URL, args).then(function (iData) {
+    getData(URL, args).then(function (iData) {
+      res.json(iData);
+    }).catch(function(iReason){
+      res.json(JSON.parse(iReason));
+    });
+  }
+});
+
+router.post('/dsx/post', function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  let args = req.body;
+  let URL = req.body.url;
+  delete args['url'];
+  if(URL == "" || URL == undefined){
+    res.json({"message": "Wrong URL"});
+  }else{
+    postData(URL, args).then(function (iData) {
       res.json(iData);
     }).catch(function(iReason){
       res.json(JSON.parse(iReason));
