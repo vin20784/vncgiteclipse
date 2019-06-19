@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var config = require('../auth/config.js');
 const AuthenticationData = require('../auth/AuthenticationData');
 const optionBuilder = require('../auth/OptionBuilder');
 const requestManger = require('../auth/RequestManager');
@@ -7,7 +8,7 @@ const requestManger = require('../auth/RequestManager');
 let authManager = new AuthenticationData();
 let reqManager = new requestManger();
 
-function getTaskOption(authentication, iURL, args) {
+function getGetOption(authentication, iURL, args) {
   let queryString = args['name'] ?
     "name=" + args['name'] :
     Object.keys(args).map(key => key + '=' + args[key]).join('&');
@@ -17,17 +18,26 @@ function getTaskOption(authentication, iURL, args) {
     .build();
 }
 
+function getPostOption(authentication, iURL, args) {
+  return new optionBuilder(iURL).setCookie(authentication)
+    .setFormData(args)
+    .setContentType('multipart/form-data')
+    .build();
+}
+
 const getData = async function (iURL, iArgs) {
+  // config.currentUrl = iURL;
   let authData = await authManager.getAuthenticationData();
-  var options = getTaskOption(authData, iURL, iArgs);
+  var options = getGetOption(authData, iURL, iArgs);
   let irData = await reqManager.getRequest(options);
 
   return irData.body;
 }
 
 const postData = async function(iURL, iArgs){
+
   let authData = await authManager.getAuthenticationData();
-  var options = getTaskOption(authData, iURL, iArgs);
+  var options = getPostOption(authData, iURL, iArgs);
   let irData = await reqManager.postRequest(options);
 
   return irData.body;
@@ -40,7 +50,9 @@ router.post('/dsx/get', function (req, res, next) {
   let URL = req.body.url;
   delete args['url'];
   if(URL == "" || URL == undefined){
-    res.json({"message": "Wrong URL"});
+    res.json(JSON.stringify({"message": "Wrong URL"}));
+  }else if(URL.indexOf('ppd') < 0){
+    res.json(JSON.stringify({"message":"Please use a right pre-production URL"}));
   }else{
     getData(URL, args).then(function (iData) {
       res.json(iData);

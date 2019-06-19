@@ -7,15 +7,8 @@ const requestManager = require('./RequestManager');
 const optionBuilder = require('./OptionBuilder');
 const authenticationData = require('./AuthenticationData');
 const QsrData = require('./QSRData');
-const readline = require('readline');
 const os = require('os');
 const config = require('./config');
-
-
-const urls = {
-    qsrURL: "https://dsxdev-online-ppd.dsone.3ds.com/enovia/rest/ws/v1/irs",
-    passPortURL: "https://euw1-devprol14-iam.3dx-staging.3ds.com/cas"
-  }
 
 var rm = new requestManager();
 
@@ -158,7 +151,7 @@ class CASAuthentication {
 
     try {
 
-      let url_LT = urls.passPortURL+'/login?action=get_auth_params';
+      let url_LT = config.passPortURL+'/login?action=get_auth_params';
       console.log("start auth");
       let res_LT = await getLT(url_LT);
       console.log("res_LT: "+res_LT);
@@ -170,7 +163,7 @@ class CASAuthentication {
       // Get the login Ticket and store it
       this.LTCookie = res_LT.headers['set-cookie'];
       this.LT = JSON.parse(res_LT.body).lt;
-      let url_CAS = urls.passPortURL+'/login?username='+this._args['username']+'&password='+this._args['password']+'&lt='+this.LT+'&rememberMe=on';
+      let url_CAS = config.passPortURL+'/login?username='+this._args['username']+'&password='+this._args['password']+'&lt='+this.LT+'&rememberMe=on';
       let res_CAS = await getCASCookie(url_CAS,this.LTCookie);
       console.log("res_CAS: "+res_CAS);
       if(res_CAS.statusCode !== 302)
@@ -179,8 +172,8 @@ class CASAuthentication {
       }
 
       // Store the CAS Cookie
-      this.setCASCookie(res_CAS.headers['set-cookie']);
-      let url_ST = urls.passPortURL+'/login?service='+urls.qsrURL;
+      this.setCASCookie(res_CAS.headers['set-cookie'][0]);
+      let url_ST = config.passPortURL+'/login?service='+config.currentUrl;
       let res_Redirect = await getSTRequest(url_ST,this.CASCookie);
       console.log("res_Redirect: "+res_Redirect);
       if(res_Redirect.statusCode !== 200)
@@ -191,7 +184,7 @@ class CASAuthentication {
       // Get the redirection URL with JSessionID
       this.STURL = JSON.parse(res_Redirect.body)['x3ds_service_redirect_url'];
       let res_dummy = await dummyPost(this);
-      this.JSESSIONID = res_dummy.headers['set-cookie'];
+      this.JSESSIONID = res_dummy.headers['set-cookie'][0];
 
       await authManager.storeAuthentication(this);
 
@@ -209,7 +202,7 @@ class CASAuthentication {
 
     try {
 
-      let url_ST = urls.passPortURL+'/login?service='+urls.qsrURL;
+      let url_ST = config.passPortURL+'/login?service='+config.currentUrl;
       let redirectRes = await getSTRequest(url_ST,this.CASCookie);
 
       this.STURL = JSON.parse(redirectRes.body)['x3ds_service_redirect_url'];
@@ -225,7 +218,7 @@ class CASAuthentication {
       }
 
       let res_Post = await dummyPost(this);
-      this.JSESSIONID = res_Post.headers['set-cookie'];
+      this.JSESSIONID = res_Post.headers['set-cookie'][0];
       authManager.storeAuthentication(this);
 
     } catch (error) {

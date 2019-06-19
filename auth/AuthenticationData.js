@@ -5,6 +5,7 @@ const requestManager = require('./RequestManager');
 const casAuthentication = require('./CASAuthentication');
 const path = require('path');
 const fs = require('fs');
+const config = require('./config');
 
 
 var authenticationFile = path.join(__dirname, "Auth/auth.txt");
@@ -37,7 +38,7 @@ function readAuthenticationData() {
 async function isValidJSESSIONID(cookie) {
 
   let rm = new requestManager();
-  let option = new optionBuilder(urls.irURL + '?owner=' + os.userInfo().username).setCookie(cookie).build();
+  let option = new optionBuilder(config.currentUrl + '?owner=' + os.userInfo().username).setCookie(cookie).build();
 
   let res = await rm.getRequest(option);
 
