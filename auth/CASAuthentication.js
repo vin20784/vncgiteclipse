@@ -186,7 +186,7 @@ class CASAuthentication {
       let res_dummy = await dummyPost(this);
       this.JSESSIONID = res_dummy.headers['set-cookie'][0];
 
-      // await authManager.storeAuthentication(this);
+      await authManager.storeAuthentication(this);
 
       return true;
 
@@ -219,7 +219,7 @@ class CASAuthentication {
 
       let res_Post = await dummyPost(this);
       this.JSESSIONID = res_Post.headers['set-cookie'][0];
-      // authManager.storeAuthentication(this);
+      authManager.storeAuthentication(this);
 
     } catch (error) {
         console.error("Error in Authentication ",error);
