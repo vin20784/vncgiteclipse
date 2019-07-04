@@ -26,7 +26,6 @@ function getPostOption(authentication, iURL, args) {
 }
 
 const getData = async function (iURL, iArgs) {
-  // config.currentUrl = iURL;
   let authData = await authManager.getAuthenticationData();
   var options = getGetOption(authData, iURL, iArgs);
   let irData = await reqManager.getRequest(options);

@@ -88,7 +88,7 @@ class AuthenticationData {
   async getAuthenticationData() {
 
     try {
-      let resRead = await readAuthenticationData();
+      let resRead = null;//await readAuthenticationData();
 
       if (resRead === null) {
         console.info("Cookie file not read");
