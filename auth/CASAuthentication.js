@@ -43,51 +43,6 @@ function dummyPost(casObj) {
   return rm.postRequest(option);
 }
 
-function getPassword (user)
-{
-  return new Promise(resolve => {
-    resolve(config.password);
-      // let rl = readline.createInterface({
-      //     input: process.stdin,
-      //     output: process.stdout
-      // });
-
-      // rl.stdoutMuted = true;
-
-      // rl.question(`Enter password for ${user} : `, (pwd) => {
-      //     rl.close();
-      //     resolve(pwd);
-      // });
-      // let pwd='';
-      // rl._writeToOutput = function _writeToOutput(stringToWrite) {
-
-      //     if (rl.stdoutMuted)
-      //         rl.output.write("\x1B[2K\x1B[200D"+(pwd+="*"));
-      //     else
-      //         rl.output.write(stringToWrite);
-      // }
-  });
-}
-
-function getUserName() {
-  return new Promise(resolve => {
-    resolve(config.username);
-    // let rl = readline.createInterface({
-    //   input: process.stdin,
-    //   output: process.stdout
-    // });
-
-    // //rl.stdoutMuted = true;
-
-    // rl.question('Enter username : ', (usr) => {
-    //   rl.close();
-    //   resolve(usr);
-    // });
-
-  });
-
-}
-
 
 class CASAuthentication {
 
@@ -100,48 +55,7 @@ class CASAuthentication {
     this.JSESSIONID = null;
     this.STURL = null;
     this._args = {};
-    // this.setup(options || this.parse());
   }
-
-//   parse(argv) {
-//     this.syntax = [
-//         {
-//             header: 'Description',
-//             content: ['CAS Authentication for accessing Web Services']
-//         },
-//         parser.SynopsisFiles,
-//         {
-//             header: 'Main Options',
-//             optionList: [
-//                 {
-//                     name: 'username', alias: 'u', typeLabel: 'UN',
-//                     required: true,
-//                     description: 'User Name'
-//                 },
-//                 {
-//                     name: 'password', alias: 'p', typeLabel: 'PWD',
-//                     required: true,
-//                     description: 'Password of user'
-//                 }
-//             ]
-//         },
-//         CmdRunner.syntax()
-//     ];
-//     const validateObj = {
-//       required: [['username', 'password']]
-//     };
-//     this.syntax.push({header:'validator', optionList:validateObj});
-//     return parser.parse(this.syntax, argv);
-//   }
-
-  /**
-     Interpret and store the setup values.
-      @param {Object} args Setup arguments
-  */
-//   setup(args) {
-//     this._args = args;
-//     this._runner = new CmdRunner(this._args);
-//   }
 
   setCASCookie(cookie) {
     this.CASCookie = cookie;
@@ -209,10 +123,6 @@ class CASAuthentication {
 
       if(redirectRes.statusCode !== 200)
       {
-
-        let userName = os.userInfo().username;
-        let password = await getPassword(userName);
-        // this.setup({'username':userName, 'password':password});
         this.doEntrireAuthProcess(authManager);
         return true;
       }
@@ -227,11 +137,11 @@ class CASAuthentication {
 
   }
 
-  async setUserNamePassword() {
+  setUserNamePassword(iUsername, iPassword) {
 
     try {
-      this._args['username'] = await getUserName();
-      this._args['password'] = await getPassword(this._args['username']);
+      this._args['username'] = iUsername;
+      this._args['password'] = iPassword;
     }
     catch(error) {
         console.error("Error in Reading User and Password",error);
