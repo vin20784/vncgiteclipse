@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var config = require('../auth/config.js');
 const AuthenticationData = require('../auth/AuthenticationData');
+const casAuthentication = require('../auth/CASAuthentication');
 const optionBuilder = require('../auth/OptionBuilder');
 const requestManger = require('../auth/RequestManager');
 
@@ -23,6 +24,15 @@ function getPostOption(authentication, iURL, args) {
     .setFormData(args)
     .setContentType('multipart/form-data')
     .build();
+}
+
+const getAuthenticate = async function(iArgs) {
+  let cas = new casAuthentication({"username": iArgs.username, "password": iArgs.password});
+  authManager.username = iArgs.username;
+  authManager.password = iArgs.password;
+  let isAuthenticated = await cas.doEntrireAuthProcess(authManager);
+
+  return { 'authData': authManager, "isAuthenticated": isAuthenticated };
 }
 
 const getData = async function (iURL, iArgs) {
@@ -50,6 +60,25 @@ const putData = async function (iURL, iArgs) {
 
   return irData.body;
 }
+
+router.post('/dsx/auth', function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  if (req.method == 'POST') {
+    let body = '';
+    req.on('data', function (data) {
+      body += data;
+      if (body.length > 1e6) {
+        req.connection.destroy();
+      }
+    });
+    req.on('end', function () {
+      let args = JSON.parse(body);
+      getAuthenticate(args).then(function(iAuthData){
+        res.json(iAuthData.isAuthenticated);
+      })
+    });
+  }
+});
 
 /* GET home page. */
 router.post('/dsx/get', function (req, res, next) {

@@ -38,7 +38,7 @@ function readAuthenticationData() {
 async function isValidJSESSIONID(cookie) {
 
   let rm = new requestManager();
-  let option = new optionBuilder(config.currentUrl + '?owner=' + os.userInfo().username).setCookie(cookie).build();
+  let option = new optionBuilder(config.currentUrl + '?Owner=' + os.userInfo().username).setCookie(cookie).build();
 
   let res = await rm.getRequest(option);
 
@@ -54,6 +54,8 @@ class AuthenticationData {
   constructor() {
     this.CASCookie = null;
     this.JSESSIONID = null;
+    this.username = null;
+    this.password = null;
   }
 
   async storeAuthentication(data) {
@@ -92,8 +94,8 @@ class AuthenticationData {
 
       if (resRead === null) {
         console.info("Cookie file not read");
-        let cas = new casAuthentication({});
-        await cas.setUserNamePassword();
+        let cas = new casAuthentication({"username": this.username, "password": this.password});
+        // await cas.setUserNamePassword();
         await cas.doEntrireAuthProcess(this);
 
       }
@@ -106,7 +108,7 @@ class AuthenticationData {
           console.info("Authentication is valid");
         else {
           console.info("Authentication Expired, Renewing authentication cookie");
-          let cas = new casAuthentication({});
+          let cas = new casAuthentication({"username": this.username, "password": this.password});
           cas.partialAuth = true; // for partial authenticating data
           cas.setCASCookie(this.CASCookie);
           await cas.doCASValidation(this);

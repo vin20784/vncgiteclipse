@@ -99,7 +99,10 @@ class CASAuthentication {
     this.CASCookie = null;
     this.JSESSIONID = null;
     this.STURL = null;
-    this._args = {};
+    this._args = {
+      "username": options.username,
+      "password": options.password
+    };
     // this.setup(options || this.parse());
   }
 
