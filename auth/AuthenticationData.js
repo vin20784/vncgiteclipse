@@ -10,6 +10,9 @@ const config = require('./config');
 
 var authenticationFile = path.join(__dirname, "Auth/auth.txt");
 var authenticationDir = path.join(__dirname, "Auth");
+const urls = {
+  irURL: "https://dsxdev-online-ppd.dsone.3ds.com/enovia/rest/ws/v1/irs"
+}
 
 function readAuthenticationData() {
 
@@ -57,24 +60,46 @@ class AuthenticationData {
 
     this.JSESSIONID = data.JSESSIONID;
     this.CASCookie = data.CASCookie;
-  }
 
-  async getAuthenticationData(iSessionData) {
+    let jsonObject = {
+      CASCookie: this.CASCookie,
+      JSESSIONID: this.JSESSIONID
+    }
+
+    let str = JSON.stringify(jsonObject);
+
+    if (!fs.existsSync(authenticationDir))
+      fs.mkdirSync(authenticationDir);
 
     try {
-      // let resRead = null;//await readAuthenticationData();
+      fs.writeFileSync(authenticationFile, str, 'utf8');
+      console.info(`Authentication Data saved to file : ${authenticationFile}`);
+    } catch (e) {
+      throw e;
+    }
+    /*if(fs.writeFileSync(authenticationFile, str,'utf8')) {
+      utils.info(`Authentication Data saved to file : ${authenticationFile}`);
+    }
+    else {
+      if (err)  { throw err; }
+    }*/
+  }
 
-      // if (resRead === null) {
-      //   console.info("Cookie file not read");
-      //   let cas = new casAuthentication({});
-      //   await cas.setUserNamePassword();
-      //   await cas.doEntrireAuthProcess(this);
+  async getAuthenticationData() {
 
-      // }
-      // else 
-      {
-        this.CASCookie = iSessionData.CASCookie;
-        this.JSESSIONID = iSessionData.JSESSIONID;
+    try {
+      let resRead = null;//await readAuthenticationData();
+
+      if (resRead === null) {
+        console.info("Cookie file not read");
+        let cas = new casAuthentication({});
+        await cas.setUserNamePassword();
+        await cas.doEntrireAuthProcess(this);
+
+      }
+      else {
+        this.CASCookie = resRead.CASCookie;
+        this.JSESSIONID = resRead.JSESSIONID;
 
         let getRes = await isValidJSESSIONID(this.JSESSIONID);
         if (getRes)
@@ -88,7 +113,7 @@ class AuthenticationData {
         }
       }
 
-      return {'JSESSIONID': this.JSESSIONID, 'CASCookie': this.CASCookie};
+      return this.JSESSIONID;
 
     } catch (error) {
       console.error("Error in AuthenticationData, getAuthenticationData ", { error });

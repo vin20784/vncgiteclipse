@@ -12,7 +12,7 @@ var app = express();
 
 app.use(session({
   secret: 'raakshash',
-  resave: false,
+  resave: true,
   saveUninitialized: true
 }));
 
