@@ -74,7 +74,7 @@ router.post('/dsx/auth', function (req, res, next) {
     req.on('end', function () {
       let args = JSON.parse(body);
       getAuthenticate(args).then(function(iAuthData){
-        res.json(iAuthData.isAuthenticated);
+        res.json({"isAuthenticated" : iAuthData.isAuthenticated, "user": iAuthData.authData.username});
       })
     });
   }
