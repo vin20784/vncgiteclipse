@@ -46,7 +46,7 @@ const getData = async function (iURL, iArgs) {
 const postData = async function (iURL, iArgs) {
 
   let authData = await authManager.getAuthenticationData();
-  var options = getPostOption(authData, iURL, iArgs);
+  var options = getGetOption(authData, iURL, iArgs);
   let irData = await reqManager.postRequest(options);
 
   return irData.body;
